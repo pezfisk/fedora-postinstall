@@ -55,7 +55,7 @@ print_success "RPM Fusion repositories enabled"
 
 # 4. Enable additional useful repositories
 print_status "Enabling additional repositories..."
-sudo dnf config-manager fedora-cisco-openh264.enabled=1
+sudo dnf config-manager setopt fedora-cisco-openh264.enabled=1
 print_success "Additional repositories enabled"
 
 # 5. Enable Flathub
