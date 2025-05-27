@@ -55,7 +55,7 @@ print_success "RPM Fusion repositories enabled"
 
 # 4. Enable additional useful repositories
 print_status "Enabling additional repositories..."
-sudo dnf config-manager --set-enabled fedora-cisco-openh264
+sudo dnf config-manager fedora-cisco-openh264.enabled=1
 print_success "Additional repositories enabled"
 
 # 5. Enable Flathub
@@ -63,22 +63,8 @@ print_status "Enabling Flathub repository..."
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 print_success "Flathub repository enabled"
 
-# 6. Install multimedia codecs and essential packages
-print_status "Installing multimedia codecs and essential packages..."
-sudo dnf install -y \
-  @multimedia \
-  ffmpeg \
-  gstreamer1-plugins-{bad-*,good-*,base} \
-  gstreamer1-plugin-openh264 \
-  gstreamer1-libav \
-  lame* \
-  --exclude=gstreamer1-plugins-bad-free-devel
-sudo dnf update -y @core
-print_success "Multimedia codecs installed"
-
 # 7. Install essential development tools
 print_status "Installing development tools..."
-sudo dnf groupinstall -y "Development Tools"
 sudo dnf install -y \
   git \
   curl \
@@ -96,7 +82,6 @@ print_success "Development tools installed"
 print_status "Installing required packages..."
 REQUIRED_PACKAGES=(
   "gnome-tweaks"
-  "bottles"
   "wine"
   "steam"
   "preload" # For faster app startup
@@ -131,6 +116,8 @@ fi
 print_status "Installing required Flatpak packages..."
 FLATPAK_PACKAGES=(
   "com.discordapp.Discord"
+  "com.usebottles.bottles"
+  "com.mattjakeman.ExtensionManager"
 )
 
 for package in "${FLATPAK_PACKAGES[@]}"; do
@@ -167,17 +154,14 @@ mkdir -p ~/.local/share/fonts/jetbrains-mono
 
 # Install Inter font
 print_status "Downloading and installing Inter font..."
-curl -L https://github.com/rsms/inter/releases/latest/download/Inter.zip -o /tmp/Inter.zip
+curl -L https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip -o /tmp/Inter.zip
 unzip /tmp/Inter.zip -d /tmp/Inter
 find /tmp/Inter -name "*.ttf" -exec cp {} ~/.local/share/fonts/inter/ \;
 rm -rf /tmp/Inter /tmp/Inter.zip
 
 # Install JetBrains Mono font
 print_status "Downloading and installing JetBrains Mono font..."
-curl -L https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip -o /tmp/JetBrainsMono.zip
-unzip /tmp/JetBrainsMono.zip -d /tmp/JetBrainsMono
-find /tmp/JetBrainsMono -name "*.ttf" -exec cp {} ~/.local/share/fonts/jetbrains-mono/ \;
-rm -rf /tmp/JetBrainsMono /tmp/JetBrainsMono.zip
+sudo dnf install -y jetbrains-mono-fonts
 
 # Update font cache
 fc-cache -f -v
@@ -209,11 +193,6 @@ Cache=yes
 EOF
 
 sudo systemctl restart systemd-resolved
-
-# Install useful GNOME extensions (optional)
-print_status "Installing useful GNOME Shell extensions..."
-sudo dnf install -y gnome-extensions-app
-
 # Enable and start preload service
 sudo systemctl enable preload
 sudo systemctl start preload
